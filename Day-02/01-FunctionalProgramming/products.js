@@ -82,28 +82,40 @@ printGroup("Filter", function(){
 				result.push(list[i]);
 		return result;
 	}
-	printGroup("Costly products", function(){
-		function costlyProductCriteria(item){
-			return item.cost > 50
+	function getInverseCriteriaFor(criteriaFn){
+		return function(){
+			return !criteriaFn.apply(this,arguments);
 		}
+	}
+	function costlyProductCriteria(item){
+		return item.cost > 50
+	}
+	printGroup("Costly products", function(){
+		
 		var costlyProducts = filter(products, costlyProductCriteria);
 		console.table(costlyProducts);
 	});
 
 	printGroup("Affordable products", function(){
-		function affordableProductCriteria(item){
+		/*function affordableProductCriteria(item){
 			return item.cost <= 50;
-		}
+		}*/
+		var affordableProductCriteria = getInverseCriteriaFor(costlyProductCriteria);
 		var affordableProducts = filter(products, affordableProductCriteria);
 		console.table(affordableProducts);
 	});
-
+	function InsufficientlyStockedProductCriteria(item){
+		return item.units < 50
+	}
 	printGroup("Insufficiently stocked products", function(){
-		function InsufficientlyStockedProductCriteria(item){
-			return item.units < 50
-		}
+		
 		var insufficientlyStockedProducts = filter(products, InsufficientlyStockedProductCriteria);
 		console.table(insufficientlyStockedProducts);
+	});
+	printGroup("Insufficiently stocked products", function(){
+		var sufficientlyStockedProductCriteria = getInverseCriteriaFor(InsufficientlyStockedProductCriteria);
+		var sufficientlyStockedProducts = filter(products, sufficientlyStockedProductCriteria);
+		console.table(sufficientlyStockedProducts);
 	});
 
 
@@ -113,7 +125,43 @@ printGroup("Filter", function(){
 		}
 		var category1Products = filter(products, category1ProductCriteria);
 		console.table(category1Products);
-	})
-})
+	});
+});
+
+printGroup("GroupBy", function(){
+	function groupBy(list, keySelectorFn){
+		var result = {};
+		for(var i=0;i < list.length; i++){
+			var key = keySelectorFn(list[i]);
+			if (typeof result[key] === "undefined")
+				result[key] = [];
+			result[key].push(list[i]);
+		}
+		return result;
+	}
+
+	function categoryKeySelector(product){
+		return product.category;
+	}
+	printGroup("Products By Category", function(){
+		var productsByCategory = groupBy(products, categoryKeySelector);
+		for(var key in productsByCategory)
+			printGroup("Products in Category - " + key, function(){
+				console.table(productsByCategory[key]);
+			});
+	});
+
+	function keySelectorByCost(product){
+		return product.cost > 50 ? "costly" : "affordable";
+	}
+	var productsByCost = groupBy(products, keySelectorByCost);
+	printGroup("Products By Cost", function(){
+		var productsByCost = groupBy(products, keySelectorByCost);
+		for(var key in productsByCost)
+			printGroup("Products in Cost Category - " + key, function(){
+				console.table(productsByCost[key]);
+			});
+	});
+});
 
 
