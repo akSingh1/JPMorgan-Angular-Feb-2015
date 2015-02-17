@@ -33,7 +33,7 @@
 			var net = gross *((100-parseInt(this.tax,10))/100);
 			this.salary = net;
 		}
-		return SalaryCalculator
+		return SalaryCalculator;
 	});
 	calculatorApp.controller("SalaryCalculatorCtrl", function($scope, SalaryCalculator){
 		$scope.calc = new SalaryCalculator();

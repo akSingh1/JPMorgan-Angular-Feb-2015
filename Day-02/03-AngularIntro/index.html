@@ -6,6 +6,7 @@
 	<script src="angular.js"></script>
 	<script>
 	var greetingApp = angular.module("greetingApp", []);
+	
 	greetingApp.controller("greetingCtrl", function($scope){
 		$scope.greet = function(){
 			$scope.greetMsg = "Hi " + $scope.firstName + " " + $scope.lastName + ", Have a nice day!";
