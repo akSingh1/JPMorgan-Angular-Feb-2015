@@ -75,12 +75,45 @@ printGroup("Sort", function(){
 });
 
 printGroup("Filter", function(){
-	var costlyProducts = [];
+	function filter(list, criteriaFn){
+		var result = [];
+		for(var i=0; i<list.length; i++)
+			if (criteriaFn(list[i]))
+				result.push(list[i]);
+		return result;
+	}
+	printGroup("Costly products", function(){
+		function costlyProductCriteria(item){
+			return item.cost > 50
+		}
+		var costlyProducts = filter(products, costlyProductCriteria);
+		console.table(costlyProducts);
+	});
 
-	for(var i=0; i<products.length; i++)
-		if (products[i].cost > 50)
-			costlyProducts.push(products[i]);
-	console.table(costlyProducts);
+	printGroup("Affordable products", function(){
+		function affordableProductCriteria(item){
+			return item.cost <= 50;
+		}
+		var affordableProducts = filter(products, affordableProductCriteria);
+		console.table(affordableProducts);
+	});
+
+	printGroup("Insufficiently stocked products", function(){
+		function InsufficientlyStockedProductCriteria(item){
+			return item.units < 50
+		}
+		var insufficientlyStockedProducts = filter(products, InsufficientlyStockedProductCriteria);
+		console.table(insufficientlyStockedProducts);
+	});
+
+
+	printGroup("Category - 1 Products", function(){
+		function category1ProductCriteria(item){
+			return item.category === 1;
+		}
+		var category1Products = filter(products, category1ProductCriteria);
+		console.table(category1Products);
+	})
 })
 
 
