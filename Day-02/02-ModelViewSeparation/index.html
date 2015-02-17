@@ -56,52 +56,67 @@
 		
 	}
 
+	function SalaryCalculatorView(calculator){
+		var $root = this.$root = $("<div></div>");
+
+		this.init = function(){
+			calculator.addSubscriber('salary', function(){
+				$("#divResult", $root).html(calculator.get('salary'));
+			});
+			calculator.addSubscriber('basic', function(){
+				$("#txtBasic", $root).val(calculator.get('basic'));
+			});
+			calculator.addSubscriber('hra', function(){
+				$("#txtHra", $root).val(calculator.get('hra'));
+			});
+			calculator.addSubscriber('da', function(){
+				$("#txtDa", $root).val(calculator.get('da'));
+			});
+			calculator.addSubscriber('tax', function(){
+				$("#rangeTax", $root).val(calculator.get('tax'));
+				$("#spanTax", $root).html(calculator.get('tax') + '%');
+			});
+
+			//UI Events
+			$root.on("change", "#txtBasic", function(){
+				calculator.set('basic', parseInt(this.value,10));
+			});
+			$root.on("change", "#txtHra", function(){
+				calculator.set('hra', parseInt(this.value,10));
+			});
+			$root.on("change", "#txtDa", function(){
+				calculator.set('da', parseInt(this.value,10));
+			});
+			$root.on("change", "#rangeTax", function(){
+				calculator.set('tax', parseInt(this.value,10));
+			});
+			$root.on("click", "#btnCalculate", function(){
+				calculator.calculate();
+			});
+		};
+
+		this.render = function(){
+			this.$root.html($("#calculatorTemplate").html());
+		}
+	}
 
 	$(function(){
 		window.calculator = new SalaryCalculator();
-		
-		//Model change events
-		calculator.addSubscriber('salary', function(){
-			$("#divResult").html(calculator.get('salary'));
-		});
-		calculator.addSubscriber('basic', function(){
-			$("#txtBasic").val(calculator.get('basic'));
-		});
-		calculator.addSubscriber('hra', function(){
-			$("#txtHra").val(calculator.get('hra'));
-		});
-		calculator.addSubscriber('da', function(){
-			$("#txtDa").val(calculator.get('da'));
-		});
-		calculator.addSubscriber('tax', function(){
-			$("#rangeTax").val(calculator.get('tax'));
-			$("#spanTax").html(calculator.get('tax') + '%');
-		});
 
-		//UI Events
-		$("#txtBasic").change(function(){
-			calculator.set('basic', parseInt(this.value,10));
-		});
-		$("#txtHra").change(function(){
-			calculator.set('hra', parseInt(this.value,10));
-		});
-		$("#txtDa").change(function(){
-			calculator.set('da', parseInt(this.value,10));
-		});
-		$("#rangeTax").change(function(){
-			calculator.set('tax', parseInt(this.value,10));
-		});
-		$("#btnCalculate").click(function(){
-			calculator.calculate();
+		var view1 = new SalaryCalculatorView(calculator);
+		view1.init();
+		view1.render();
+		view1.$root.appendTo(document.body);
 
-		});
-		
+		var view2 = new SalaryCalculatorView(calculator);
+		view2.init();
+		view2.render();
+		view2.$root.appendTo(document.body);
 	});
+	
 
 	</script>
-</head>
-<body>
-	<h1>Salary Calculator</h1>
+	<script type="text/template" id="calculatorTemplate">
 	<hr>
 	<div><label for="">Basic :</label><input type="text" name="" id="txtBasic"></div>
 	<div><label for="">HRA :</label><input type="text" name="" id="txtHra"></div>
@@ -115,5 +130,10 @@
 	<div>
 		<div id="divResult">[Salary]</div>
 	</div>
+	</script>
+</head>
+<body>
+	<h1>Salary Calculator</h1>
+	
 </body>
 </html>
