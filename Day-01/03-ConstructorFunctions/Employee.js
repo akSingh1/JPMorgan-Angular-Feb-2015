@@ -3,3 +3,4 @@ function Employee(id, name, salary){
 	this.name = name;
 	this.salary = salary;
 }
+
