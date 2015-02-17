@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="angularApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Salary Calculator</title>
+	<style type="text/css">
+	label{
+		display : block;
+
+	}
+	#divResult {
+		color : red;
+		font-size: 28pt;
+	}
+	</style>
+	
+	
+	<script src="angular.js"></script>
+	<script>
+	function SalaryCalculator(){
+		this.basic = 0;
+		this.hra = 0;
+		this.da = 0;
+		this.tax = 0;
+		this.salary = 0;
+	}
+	SalaryCalculator.prototype.calculate = function(){
+		var gross = parseInt(this.basic,10) + parseInt(this.hra,10) + parseInt(this.da,10);
+		var net = gross *((100-parseInt(this.tax,10))/100);
+		this.salary = net;
+	}
+
+	var calculatorApp = angular.module("angularApp", []);
+	calculatorApp.controller("SalaryCalculatorCtrl", function($scope){
+		$scope.calc = new SalaryCalculator();
+	});
+	</script>
+</head>
+<body data-ng-controller="SalaryCalculatorCtrl">
+	<h1>Salary Calculator</h1>
+	<hr>
+	<div><label for="">Basic :</label><input type="text" data-ng-model="calc.basic"></div>
+	<div><label for="">HRA :</label><input type="text" data-ng-model="calc.hra"></div>
+	<div><label for="">DA :</label><input type="text" data-ng-model="calc.da"></div>
+	<div>
+		<label for="">Tax :</label>
+		<input type="range" name="" id="rangeTax" min="0" max="30" data-ng-model="calc.tax">
+		<span id="spanTax">{{calc.tax}}%</span>
+	</div>
+	<div><input type="button" value="Calculate" data-ng-click="calc.calculate()"></div>
+	<div>
+		<div id="divResult">{{calc.salary}}</div>
+	</div>
+</body>
+</html>
