@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular Intro</title>
+	<script src="angular.js"></script>
+	<script>
+	var greetingApp = angular.module("greetingApp", []);
+	greetingApp.controller("greetingCtrl", function($scope){
+		$scope.greet = function(){
+			$scope.greetMsg = "Hi " + $scope.firstName + " " + $scope.lastName + ", Have a nice day!";
+		}
+
+	});
+	</script>
+</head>
+<body ng-app="greetingApp" data-ng-controller="greetingCtrl">
+	<input type="text" data-ng-model="firstName">
+	<input type="text" data-ng-model="lastName">
+	<input type="button" value="Greet" data-ng-click="greet()">
+	<div>{{greetMsg}}</div>
+</body>
+</html>
