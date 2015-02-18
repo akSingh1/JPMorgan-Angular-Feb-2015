@@ -15,6 +15,8 @@
 	<script>
 	var bugTrackerApp = angular.module("bugTrackerApp", []);
 
+	bugTrackerApp.value("storageOption", "localStorage");
+
 	bugTrackerApp.factory('Bug', function(){
 		function Bug(defaults){
 			defaults = defaults || {};
@@ -29,8 +31,8 @@
 	});
 
 
-	 bugTrackerApp.service('BugStorage', function BugStorage($window, Bug){
-		var storage = $window.localStorage;
+	 bugTrackerApp.service('BugStorage', function BugStorage($window, Bug, storageOption){
+		var storage = $window[storageOption];
 		this.getAll = function loadBugsFromStorage(){
 			var result = [];
 			for(var i=0; i< storage.length; i++){
