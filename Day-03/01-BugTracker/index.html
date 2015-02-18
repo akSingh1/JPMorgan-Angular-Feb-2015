@@ -13,55 +13,68 @@
 	</style>
 	<script src="angular.js"></script>
 	<script>
-	var bugTrackerApp = angular.module("bugTrackerApp", []);
-	bugTrackerApp.controller("bugTrackerCtrl", function($scope){
+	function Bug(defaults){
+		defaults = defaults || {};
+		this.id = defaults.id || new Date().valueOf().toString();
+		this.title = defaults.title || "";
+		this.isClosed = defaults.isClosed || false;
+	}
+	Bug.prototype.toggleClose = function(){
+		this.isClosed = !this.isClosed;
+	}
 
-
-		function loadBugsFromStorage(){
+	function BugStorage(){
+		this.storage = window.localStorage;
+		this.getAll = function loadBugsFromStorage(){
 			var result = [];
 			for(var i=0; i< window.localStorage.length; i++){
 				var key = window.localStorage.key(i);
 				var bugAsString = window.localStorage.getItem(key);
-				var bug = window.JSON.parse(bugAsString);
+				var bug = new Bug(window.JSON.parse(bugAsString));
 				result.push(bug);
 			}
 			return result;
-		}
-
-		$scope.bugs = loadBugsFromStorage();
-
-		function saveBugToStorage(bugTitle){
-			var newBug = {
-				id : new Date().valueOf().toString(),
+		};
+		this.save = function saveBugToStorage(bugTitle){
+			var newBug = new Bug({
 				title : bugTitle,
-				isClosed : false
-			};
+			});
 			window.localStorage.setItem(newBug.id, window.JSON.stringify(newBug))
 			return newBug;
-		}
+		};
+
+		this.update = function updateBugInStorage(bug){
+			window.localStorage.setItem(bug.id, window.JSON.stringify(bug));
+		};
+		this.remove = function removeBugFromStorage(bug){
+			window.localStorage.removeItem(bug.id);
+		};
+
+	}
+
+
+	var bugTrackerApp = angular.module("bugTrackerApp", []);
+	bugTrackerApp.controller("bugTrackerCtrl", function($scope){
+		var bugStorage = new BugStorage();
+
+		$scope.bugs = bugStorage.getAll();
 
 		$scope.addNew = function(bugTitle){
-			var newBug = saveBugToStorage(bugTitle);
+			var newBug = bugStorage.save(bugTitle);
 			$scope.bugs.push(newBug);
 		};
-		
-		function updateBugInStorage(bug){
-			window.localStorage.setItem(bug.id, window.JSON.stringify(bug));
-		}
-
 		$scope.toggle = function(bug){
-			bug.isClosed = !bug.isClosed;
-			updateBugInStorage(bug);
+			//bug.isClosed = !bug.isClosed;
+			bug.toggleClose();
+			bugStorage.update(bug);
 		};
-		function removeBugFromStorage(bug){
-			window.localStorage.removeItem(bug.id);
-		}
+		
 		$scope.removeClosed = function(){
 			for(var i=$scope.bugs.length-1; i>=0; i--){
 				var bug = $scope.bugs[i];
 				if (bug.isClosed){
 					$scope.bugs.splice(i,1);
-					removeBugFromStorage(bug);
+					bugStorage.remove(bug);
 				}
 			}
 		}
@@ -98,7 +111,7 @@
 		<input type="button" value="Add Bug" data-ng-click="addNew(newBug)">
 		<input type="button" value="Remove Completed" data-ng-click="removeClosed()">
 		<ol>
-			<li data-ng-repeat="bug in bugs track by $index" 
+			<li data-ng-repeat="bug in bugs track by bug.id" 
 				data-ng-click="toggle(bug)" 
 				data-ng-class="{closed : bug.isClosed}">{{bug.title}}</li>
 		</ol>
