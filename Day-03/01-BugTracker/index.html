@@ -1,27 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="bugTrackerApp">
 <head>
 	<meta charset="UTF-8">
 	<title>Bug Tracker</title>
 	<script src="angular.js"></script>
+	<script>
+	var bugTrackerApp = angular.module("bugTrackerApp", []);
+	bugTrackerApp.controller("bugTrackerCtrl", function($scope){
+		$scope.bugs = [
+			{title : "Add button is disabled", isClosed : false},
+			{title : "Unable to add a new record", isClosed : false},
+			{title : "Application crashing during startup", isClosed : false}
+		];
+
+		$scope.addNew = function(bugTitle){
+			$scope.bugs.push({title : bugTitle, isClosed : false});
+		};
+
+		$scope.toggle = function(bug){
+			bug.isClosed = !bug.isClosed;
+		};
+	});
+	</script>
 </head>
 <body>
 	<!-- 
-	1.  Add a new bug
+	1. Add a new bug
 	2. Mark a bug as closed
-	3. Reopena a bug that is marked as closed
+	3. Reopen a bug that is marked as closed
 	4. Search for bugs
 	5. Persist the bug info in localStorage
 	6. Display stats (# of Closed Bugs / Total # of bugs)
 	7. Ver - 2 -> Persist the bugs in the server
 	-->
-	<h1>Bug Tracker</h1>
-	<div>
+	<h1>Bug Tracker - Ver - 1.0</h1>
+	<div data-ng-controller="bugTrackerCtrl">
 		<label for="">Bug :</label>
-		<input type="text" name="" id="">
-		<input type="button" value="Add Bug">
+		<input type="text" data-ng-model="newBug">
+		<input type="button" value="Add Bug" data-ng-click="addNew(newBug)">
 		<input type="button" value="Remove Completed">
-		<ol></ol>
+		<ol>
+			<li data-ng-repeat="bug in bugs" data-ng-click="toggle(bug)">{{bug}}</li>
+		</ol>
 	</div>
 </body>
 </html>
