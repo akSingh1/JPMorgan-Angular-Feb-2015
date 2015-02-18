@@ -10,8 +10,12 @@
 		font-weight: bold;
 		font-style: italic;
 	}
+	.date{
+		font-style: italic;
+	}
 	</style>
 	<script src="angular.js"></script>
+	<script src="moment.js"></script>
 	<script>
 	var bugTrackerApp = angular.module("bugTrackerApp", []);
 
@@ -23,6 +27,7 @@
 			this.id = defaults.id || new Date().valueOf().toString();
 			this.title = defaults.title || "";
 			this.isClosed = defaults.isClosed || false;
+			this.createdAt = defaults.createdAt || new Date();
 		}
 		Bug.prototype.toggleClose = function(){
 			this.isClosed = !this.isClosed;
@@ -85,6 +90,14 @@
 			}
 		}
 	});
+	bugTrackerApp.value("moment", window.moment);
+
+	bugTrackerApp.filter('toMoment', function(moment){
+		return function(data){
+			data = data || new Date();
+			return moment(data).fromNow();
+		}
+	});
 	</script>
 </head>
 <body>
@@ -112,14 +125,23 @@
 	-->
 	<h1>Bug Tracker - Ver - 1.0</h1>
 	<div data-ng-controller="bugTrackerCtrl">
+		<h3>
+			<span>{{(bugs | filter:{isClosed : true}).length}}</span> / <span>{{bugs.length}}</span>
+		</h3>
+		<hr>
+		<label for="">Search :</label>
+		<input type="text" data-ng-model="searchBug" >
+		<br>
+
+		<hr>
 		<label for="">Bug :</label>
 		<input type="text" data-ng-model="newBug">
 		<input type="button" value="Add Bug" data-ng-click="addNew(newBug)">
 		<input type="button" value="Remove Completed" data-ng-click="removeClosed()">
 		<ol>
-			<li data-ng-repeat="bug in bugs track by bug.id" 
+			<li data-ng-repeat="bug in bugs | filter:getSearchMatcher() track by bug.id" 
 				data-ng-click="toggle(bug)" 
-				data-ng-class="{closed : bug.isClosed}">{{bug.title}}</li>
+				data-ng-class="{closed : bug.isClosed}">{{bug.title}} - <span class="date">{{bug.createdAt | toMoment}}</span></li>
 		</ol>
 	</div>
 </body>
