@@ -13,24 +13,30 @@
 	</style>
 	<script src="angular.js"></script>
 	<script>
-	function Bug(defaults){
-		defaults = defaults || {};
-		this.id = defaults.id || new Date().valueOf().toString();
-		this.title = defaults.title || "";
-		this.isClosed = defaults.isClosed || false;
-	}
-	Bug.prototype.toggleClose = function(){
-		this.isClosed = !this.isClosed;
-	}
+	var bugTrackerApp = angular.module("bugTrackerApp", []);
 
-	function BugStorage(){
-		this.storage = window.localStorage;
+	bugTrackerApp.factory('Bug', function(){
+		function Bug(defaults){
+			defaults = defaults || {};
+			this.id = defaults.id || new Date().valueOf().toString();
+			this.title = defaults.title || "";
+			this.isClosed = defaults.isClosed || false;
+		}
+		Bug.prototype.toggleClose = function(){
+			this.isClosed = !this.isClosed;
+		}
+		return Bug;
+	});
+
+
+	 bugTrackerApp.service('BugStorage', function BugStorage($window, Bug){
+		var storage = $window.localStorage;
 		this.getAll = function loadBugsFromStorage(){
 			var result = [];
-			for(var i=0; i< window.localStorage.length; i++){
-				var key = window.localStorage.key(i);
-				var bugAsString = window.localStorage.getItem(key);
-				var bug = new Bug(window.JSON.parse(bugAsString));
+			for(var i=0; i< storage.length; i++){
+				var key = storage.key(i);
+				var bugAsString = storage.getItem(key);
+				var bug = new Bug($window.JSON.parse(bugAsString));
 				result.push(bug);
 			}
 			return result;
@@ -39,34 +45,32 @@
 			var newBug = new Bug({
 				title : bugTitle,
 			});
-			window.localStorage.setItem(newBug.id, window.JSON.stringify(newBug))
+			storage.setItem(newBug.id, $window.JSON.stringify(newBug))
 			return newBug;
 		};
 
 		this.update = function updateBugInStorage(bug){
-			window.localStorage.setItem(bug.id, window.JSON.stringify(bug));
+			storage.setItem(bug.id, $window.JSON.stringify(bug));
 		};
 		this.remove = function removeBugFromStorage(bug){
-			window.localStorage.removeItem(bug.id);
+			storage.removeItem(bug.id);
 		};
+	});
 
-	}
+	
+	bugTrackerApp.controller("bugTrackerCtrl", function($scope, BugStorage){
+		//var bugStorage = new BugStorage();
 
-
-	var bugTrackerApp = angular.module("bugTrackerApp", []);
-	bugTrackerApp.controller("bugTrackerCtrl", function($scope){
-		var bugStorage = new BugStorage();
-
-		$scope.bugs = bugStorage.getAll();
+		$scope.bugs = BugStorage.getAll();
 
 		$scope.addNew = function(bugTitle){
-			var newBug = bugStorage.save(bugTitle);
+			var newBug = BugStorage.save(bugTitle);
 			$scope.bugs.push(newBug);
 		};
 		$scope.toggle = function(bug){
 			//bug.isClosed = !bug.isClosed;
 			bug.toggleClose();
-			bugStorage.update(bug);
+			BugStorage.update(bug);
 		};
 		
 		$scope.removeClosed = function(){
@@ -74,7 +78,7 @@
 				var bug = $scope.bugs[i];
 				if (bug.isClosed){
 					$scope.bugs.splice(i,1);
-					bugStorage.remove(bug);
+					BugStorage.remove(bug);
 				}
 			}
 		}
